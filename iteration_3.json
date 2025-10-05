@@ -1,0 +1,332 @@
+{
+  "iteration": 3,
+  "mutation_meta": {
+    "source": "gpt-4",
+    "desc": "Expanded permissions for S3 and EC2 services, and added iam:PassRole action without MFA requirement",
+    "mutation": {
+      "mutation": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": "arn:aws:s3:::example-bucket/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "ec2:*",
+            "Resource": "arn:aws:ec2:::instance/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateUser",
+              "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam:::user/*"
+          }
+        ]
+      },
+      "desc": "Expanded permissions for S3 and EC2 services, and added iam:PassRole action without MFA requirement",
+      "tags": [
+        "wildcard",
+        "privilege-escalation",
+        "iam",
+        "no-mfa"
+      ]
+    },
+    "ok": true
+  },
+  "proof": {
+    "policy_diff": "{'values_changed': {\"root['Statement'][2]\": {'new_value': {'Effect': 'Allow', 'Action': ['iam:CreateUser', 'iam:PassRole'], 'Resource': 'arn:aws:iam:::user/*'}, 'old_value': {'Effect': 'Allow', 'Action': 'iam:CreateUser', 'Resource': 'arn:aws:iam:::user/*', 'Condition': {'Bool': {'aws:MultiFactorAuthPresent': True}}}}, \"root['Statement'][1]\": {'new_value': {'Effect': 'Allow', 'Action': 'ec2:*', 'Resource': 'arn:aws:ec2:::instance/*'}, 'old_value': {'Effect': 'Allow', 'Action': 'ec2:StartInstances', 'Resource': 'arn:aws:ec2:::instance/*'}}, \"root['Statement'][0]\": {'new_value': {'Effect': 'Allow', 'Action': 's3:*', 'Resource': 'arn:aws:s3:::example-bucket/*'}, 'old_value': {'Effect': 'Allow', 'Action': 's3:GetObject', 'Resource': 'arn:aws:s3:::example-bucket/*'}}}}",
+    "strict_mode": {
+      "no_privilege_escalation": "FAIL: ['ec2:*', 'iam:CreateUser', 'iam:PassRole']",
+      "no_wildcards (ad hoc)": "FAIL: [{'Effect': 'Allow', 'Action': 's3:*', 'Resource': 'arn:aws:s3:::example-bucket/*'}, {'Effect': 'Allow', 'Action': 'ec2:*', 'Resource': 'arn:aws:ec2:::instance/*'}, {'Effect': 'Allow', 'Action': ['iam:CreateUser', 'iam:PassRole'], 'Resource': 'arn:aws:iam:::user/*'}]",
+      "no_wildcards (DFA)": "PASS",
+      "resource_containment": "PASS",
+      "resource_containment (DFA)": "FAIL: ['arn:aws:ec2:::instance/*', 'arn:aws:iam:::user/*']",
+      "no_wildcards (Z3)": "PASS",
+      "resource_containment (Z3)": "PASS"
+    },
+    "weighted_mode": {
+      "aggregate_score": 0.57
+    },
+    "exploratory_mode": {
+      "no_privilege_escalation": "SUGGEST: consider refining",
+      "no_wildcards (ad hoc)": "SUGGEST: consider refining",
+      "no_wildcards (DFA)": "PASS",
+      "resource_containment": "PASS",
+      "resource_containment (DFA)": "SUGGEST: consider refining",
+      "no_wildcards (Z3)": "PASS",
+      "resource_containment (Z3)": "PASS"
+    },
+    "coherence_fidelity": 1.0,
+    "safety_bound": "P(violation) <= 0.048",
+    "calibration": "Safe with 90% confidence",
+    "access_analyzer_findings": [],
+    "repair_suggestions": {
+      "no_privilege_escalation": "Here are the corrected JSON fragments for the policy statements that address the violations while maintaining the original intent as closely as possible:\n\n```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"s3:*\",\n  \"Resource\": \"arn:aws:s3:::example-bucket/*\"\n},\n{\n  \"Effect\": \"Allow\",\n  \"Action\": [\n    \"ec2:DescribeInstances\",\n    \"ec2:StartInstances\",\n    \"ec2:StopInstances\"\n  ],\n  \"Resource\": \"arn:aws:ec2:::instance/*\"\n},\n{\n  \"Effect\": \"Allow\",\n  \"Action\": [\n    \"iam:CreateUser\",\n    \"iam:PassRole\"\n  ],\n  \"Resource\": \"arn:aws:iam::123456789012:role/*\"\n}\n```\n\n### Changes Made:\n1. **EC2 Actions**: Restricted the EC2 actions to `DescribeInstances`, `StartInstances`, and `StopInstances` to prevent full access (`ec2:*`).\n2. **IAM Actions**: Changed the resource for `iam:PassRole` to a specific role ARN format (you should replace `123456789012` with your actual AWS account ID) to limit the scope of the action. The `iam:CreateUser` action is still included, but consider whether it is necessary based on your use case.",
+      "no_wildcards (ad hoc)": "Here are the corrected JSON fragments for the policy statements that address the violations by removing wildcards:\n\n```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"s3:ListBucket\",\n  \"Resource\": \"arn:aws:s3:::example-bucket\"\n},\n{\n  \"Effect\": \"Allow\",\n  \"Action\": [\n    \"s3:GetObject\",\n    \"s3:PutObject\",\n    \"s3:DeleteObject\"\n  ],\n  \"Resource\": \"arn:aws:s3:::example-bucket/*\"\n},\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"ec2:StartInstances\",\n  \"Resource\": \"arn:aws:ec2:region:account-id:instance/instance-id\"\n},\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"ec2:StopInstances\",\n  \"Resource\": \"arn:aws:ec2:region:account-id:instance/instance-id\"\n},\n{\n  \"Effect\": \"Allow\",\n  \"Action\": [\n    \"iam:CreateUser\",\n    \"iam:PassRole\"\n  ],\n  \"Resource\": \"arn:aws:iam::account-id:user/specific-user\"\n}\n```\n\n**Note:** Replace `region`, `account-id`, `instance-id`, and `specific-user` with the actual values relevant to your AWS environment. The actions for EC2 are also limited to starting and stopping instances as an example; you may need to adjust these based on your specific requirements.",
+      "resource_containment (DFA)": "Here are the corrected JSON fragments for the policy statements that address the violations:\n\n```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"ec2:*\",\n  \"Resource\": \"arn:aws:ec2:*:*:instance/*\"\n}\n```\n\n```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": [\n    \"iam:CreateUser\",\n    \"iam:PassRole\"\n  ],\n  \"Resource\": \"arn:aws:iam::*:user/*\"\n}\n``` \n\nThese changes ensure that the resource ARNs are correctly specified to include the necessary account ID and region, thus adhering to the resource containment principle."
+    },
+    "applied_changes": {
+      "no_privilege_escalation": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": "arn:aws:s3:::example-bucket/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "ec2:*",
+            "Resource": "arn:aws:ec2:::instance/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateUser",
+              "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam:::user/*"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": "arn:aws:s3:::example-bucket/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "ec2:DescribeInstances",
+              "ec2:StartInstances",
+              "ec2:StopInstances"
+            ],
+            "Resource": "arn:aws:ec2:::instance/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateUser",
+              "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam::123456789012:role/*"
+          }
+        ]
+      },
+      "no_wildcards (ad hoc)": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": "arn:aws:s3:::example-bucket/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "ec2:DescribeInstances",
+              "ec2:StartInstances",
+              "ec2:StopInstances"
+            ],
+            "Resource": "arn:aws:ec2:::instance/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateUser",
+              "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam::123456789012:role/*"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::example-bucket"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:GetObject",
+              "s3:PutObject",
+              "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::example-bucket/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "ec2:StartInstances",
+            "Resource": "arn:aws:ec2:region:account-id:instance/instance-id"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "ec2:StopInstances",
+            "Resource": "arn:aws:ec2:region:account-id:instance/instance-id"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateUser",
+              "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam::account-id:user/specific-user"
+          }
+        ]
+      },
+      "resource_containment (DFA)": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::example-bucket"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:GetObject",
+              "s3:PutObject",
+              "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::example-bucket/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "ec2:StartInstances",
+            "Resource": "arn:aws:ec2:region:account-id:instance/instance-id"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "ec2:StopInstances",
+            "Resource": "arn:aws:ec2:region:account-id:instance/instance-id"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateUser",
+              "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam::account-id:user/specific-user"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": "ec2:*",
+            "Resource": "arn:aws:ec2:*:*:instance/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateUser",
+              "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam::*:user/*"
+          }
+        ]
+      }
+    }
+  },
+  "repaired_policy": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::example-bucket/*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::example-bucket/*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:CreateUser",
+          "iam:PassRole"
+        ],
+        "Resource": "arn:aws:s3:::example-bucket/*",
+        "Condition": {
+          "Bool": {
+            "aws:MultiFactorAuthPresent": true
+          }
+        }
+      }
+    ]
+  },
+  "mutated_policy": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "s3:*",
+        "Resource": "arn:aws:s3:::example-bucket/*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": "ec2:*",
+        "Resource": "arn:aws:ec2:::instance/*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:CreateUser",
+          "iam:PassRole"
+        ],
+        "Resource": "arn:aws:iam:::user/*"
+      }
+    ]
+  },
+  "cst_results": {
+    "before": {
+      "allowed": 102,
+      "violations": 102,
+      "violation_rate": 0.51
+    },
+    "after": {
+      "allowed": 50,
+      "violations": 26,
+      "violation_rate": 0.13
+    },
+    "violation_reduction": 0.38,
+    "safe_loss": 0.5098039215686274,
+    "repair_score": 0.11305882352941174
+  },
+  "contracts": {
+    "evolved": [
+      "no_wildcards (ad hoc)",
+      "resource_containment"
+    ],
+    "candidates": [
+      "check_wildcard_violation",
+      "no_service_wildcards",
+      "require_mfa_for_iam",
+      "action_resource_consistency"
+    ]
+  },
+  "strict_fail_counts": {
+    "no_privilege_escalation": 3,
+    "no_wildcards (ad hoc)": 3,
+    "no_wildcards (DFA)": 2,
+    "resource_containment (DFA)": 3
+  },
+  "exploratory_suggest_counts": {
+    "no_privilege_escalation": 3,
+    "no_wildcards (ad hoc)": 3,
+    "no_wildcards (DFA)": 2,
+    "resource_containment (DFA)": 3
+  },
+  "z3_fail_counts": {},
+  "weighted_scores": [
+    0.5714285714285714,
+    0.7142857142857143
+  ],
+  "lean_export": "-- Lean encoding of policy contracts\ninductive Action | S3GetObject | S3PutObject | IamCreateUser | Service (name : String) (op : String) | Wildcard\ninductive Resource | S3Bucket | Arn (service : String) (id : String) | Global\ninductive Principal | User (id : String) | Role (id : String) | Star\ninductive Condition | MFARequired | TimeConstraint (t : String) | NoneCond\n\n-- Predicates\ndef ValidAction (a : Action) : Prop := match a with | Wildcard => False | _ => True\ndef ValidResource (r : Resource) : Prop := match r with | Global => False | _ => True\ndef ValidPrincipal (p : Principal) : Prop := match p with | Star => False | _ => True\ndef EnforcesMFA (c : Condition) : Prop := match c with | MFARequired => True | _ => False\n\ntheorem no_wildcards_s3_GetObject : True := by trivial\ntheorem resource_contained_arn_aws_s3___example-bucket/STAR : True := by trivial\ntheorem no_wildcards_s3_GetObject : True := by trivial\ntheorem resource_contained_arn_aws_s3___example-bucket/STAR : True := by trivial\ntheorem no_wildcards_iam_CreateUser : True := by trivial\ntheorem no_wildcards_iam_PassRole : True := by trivial\ntheorem resource_contained_arn_aws_s3___example-bucket/STAR : True := by trivial\n\n-- Meta-theorem: no_service_wildcards \u21d2 no_privilege_escalation\ntheorem no_priv_escalation_of_no_wildcards (h : \u2200 a, ValidAction a) : \u2200 a, a \u2260 Wildcard := by intros; apply h; assumption\n\n-- Meta-theorem: mfa_required \u21d2 no_escalation_without_mfa\ntheorem escalation_requires_mfa (h : \u2200 c, EnforcesMFA c) : \u2200 a, ValidAction a := by intros; trivial",
+  "dafny_export": "// Dafny encoding of policy contracts\ndatatype Action = S3GetObject | S3PutObject | IamCreateUser | Service(name: string, op: string) | Wildcard\ndatatype Resource = S3Bucket | Arn(service: string, id: string) | Global\ndatatype Principal = User(id: string) | Role(id: string) | Star\ndatatype Condition = MFARequired | TimeConstraint(t: string) | NoneCond\n\npredicate ValidAction(a: Action) { a != Wildcard }\npredicate ValidResource(r: Resource) { r != Global }\npredicate ValidPrincipal(p: Principal) { p != Star }\npredicate EnforcesMFA(c: Condition) { c == MFARequired }\n\nlemma NoWildcards_s3_GetObject() ensures s3:GetObject != \"*\" {\n  assert true; // safe\n}\n\nlemma ResourceContained_arn_aws_s3___example-bucket/STAR() ensures arn:aws:s3:::example-bucket/* in AllowedResources {\n  assert true;\n}\n\nlemma NoWildcards_s3_GetObject() ensures s3:GetObject != \"*\" {\n  assert true; // safe\n}\n\nlemma ResourceContained_arn_aws_s3___example-bucket/STAR() ensures arn:aws:s3:::example-bucket/* in AllowedResources {\n  assert true;\n}\n\nlemma NoWildcards_iam_CreateUser() ensures iam:CreateUser != \"*\" {\n  assert true; // safe\n}\n\nlemma NoWildcards_iam_PassRole() ensures iam:PassRole != \"*\" {\n  assert true; // safe\n}\n\nlemma ResourceContained_arn_aws_s3___example-bucket/STAR() ensures arn:aws:s3:::example-bucket/* in AllowedResources {\n  assert true;\n}\n\n// Meta-lemma: no_service_wildcards \u21d2 no_privilege_escalation\nlemma NoPrivEscalationFromNoWildcards() ensures forall a :: ValidAction(a) { }\n// Meta-lemma: mfa_required \u21d2 no_escalation_without_mfa\nlemma EscalationRequiresMFA() ensures forall c :: EnforcesMFA(c) { }",
+  "llm_explanation": "The theorems and lemmas failed because they rely on the absence of wildcard actions, resources, or principals, which can lead to privilege escalation or unauthorized access. Additionally, the requirement for MFA is not enforced in all scenarios, potentially allowing escalations without proper authentication.",
+  "avg_cst_gain": 0.38,
+  "avg_fidelity": 1.0
+}

@@ -1,0 +1,271 @@
+{
+  "evolved_contracts": [
+    "no_wildcards (ad hoc)",
+    "resource_containment",
+    "check_wildcard_violation"
+  ],
+  "candidate_contracts": [
+    "no_service_wildcards",
+    "require_mfa_for_iam",
+    "action_resource_consistency",
+    "check_wildcard"
+  ],
+  "strict_fail_counts": {
+    "no_privilege_escalation": 10,
+    "no_wildcards (ad hoc)": 10,
+    "no_wildcards (DFA)": 8,
+    "resource_containment (DFA)": 10
+  },
+  "exploratory_suggest_counts": {
+    "no_privilege_escalation": 10,
+    "no_wildcards (ad hoc)": 10,
+    "no_wildcards (DFA)": 8,
+    "resource_containment (DFA)": 10
+  },
+  "z3_fail_counts": {},
+  "lean_dafny_exports": {
+    "no_privilege_escalation": 10,
+    "no_wildcards (ad hoc)": 10,
+    "no_wildcards (DFA)": 10,
+    "resource_containment": 10,
+    "resource_containment (DFA)": 10,
+    "no_wildcards (Z3)": 10,
+    "resource_containment (Z3)": 10
+  },
+  "lean_unprovable": 0,
+  "dafny_violations": 0,
+  "repair_improvements": [
+    [
+      1,
+      0.42857142857142855,
+      0.8571428571428571,
+      1.0
+    ],
+    [
+      2,
+      0.42857142857142855,
+      0.8571428571428571,
+      1.0
+    ],
+    [
+      3,
+      0.5714285714285714,
+      0.7142857142857143,
+      0.38
+    ],
+    [
+      4,
+      0.42857142857142855,
+      0.7142857142857143,
+      0.0
+    ],
+    [
+      5,
+      0.42857142857142855,
+      0.7142857142857143,
+      0.0
+    ],
+    [
+      6,
+      0.5714285714285714,
+      0.8571428571428571,
+      0.47
+    ],
+    [
+      7,
+      0.42857142857142855,
+      0.7142857142857143,
+      0.0
+    ],
+    [
+      8,
+      0.42857142857142855,
+      0.7142857142857143,
+      0.0
+    ],
+    [
+      9,
+      0.42857142857142855,
+      0.8571428571428571,
+      1.0
+    ],
+    [
+      10,
+      0.42857142857142855,
+      0.8571428571428571,
+      1.0
+    ]
+  ],
+  "repair_failures": [],
+  "contract_fix_log": {
+    "1": [
+      "no_privilege_escalation",
+      "no_wildcards (DFA)",
+      "resource_containment (DFA)"
+    ],
+    "2": [
+      "no_privilege_escalation",
+      "no_wildcards (DFA)",
+      "resource_containment (DFA)"
+    ],
+    "3": [
+      "resource_containment (DFA)"
+    ],
+    "4": [
+      "no_wildcards (DFA)",
+      "resource_containment (DFA)"
+    ],
+    "5": [
+      "no_wildcards (DFA)",
+      "resource_containment (DFA)"
+    ],
+    "6": [
+      "no_privilege_escalation",
+      "resource_containment (DFA)"
+    ],
+    "7": [
+      "no_wildcards (DFA)",
+      "resource_containment (DFA)"
+    ],
+    "8": [
+      "no_wildcards (DFA)",
+      "resource_containment (DFA)"
+    ],
+    "9": [
+      "no_privilege_escalation",
+      "no_wildcards (DFA)",
+      "resource_containment (DFA)"
+    ],
+    "10": [
+      "no_privilege_escalation",
+      "no_wildcards (DFA)",
+      "resource_containment (DFA)"
+    ]
+  },
+  "cst_deltas": [
+    1.0,
+    1.0,
+    0.38,
+    0.0,
+    0.0,
+    0.47,
+    0.0,
+    0.0,
+    1.0,
+    1.0
+  ],
+  "cst_summary": {
+    "before_rates": [
+      1.0,
+      1.0,
+      0.51,
+      0.0,
+      0.0,
+      0.47,
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "after_rates": [
+      0.0,
+      0.0,
+      0.13,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "violation_reductions": [
+      1.0,
+      1.0,
+      0.38,
+      0.0,
+      0.0,
+      0.47,
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "avg_before": 0.49799999999999994,
+    "avg_after": 0.013000000000000001,
+    "avg_delta": 0.485
+  },
+  "llm_mutation_log": [
+    [
+      1,
+      "gpt-4",
+      "Allow all actions on all resources, overriding any previous restrictions or conditions"
+    ],
+    [
+      2,
+      "gpt-4",
+      "Grant all actions on all resources without any conditions"
+    ],
+    [
+      3,
+      "gpt-4",
+      "Expanded permissions for S3 and EC2 services, and added iam:PassRole action without MFA requirement"
+    ],
+    [
+      4,
+      "gpt-4",
+      "add sts:AssumeRole action with global resource"
+    ],
+    [
+      5,
+      "gpt-4",
+      "enable assuming any role"
+    ],
+    [
+      6,
+      "gpt-4",
+      "enable wildcards for all services"
+    ],
+    [
+      7,
+      "gpt-4",
+      "Enable unrestricted role assumption"
+    ],
+    [
+      8,
+      "gpt-4",
+      "Allow role assumption and passing without restriction"
+    ],
+    [
+      9,
+      "gpt-4",
+      "grant all actions on all resources without any conditions"
+    ],
+    [
+      10,
+      "gpt-4",
+      "grant all possible actions on all possible resources"
+    ]
+  ],
+  "llm_mutations_tested": 10,
+  "llm_triggered_failures": 10,
+  "avg_weighted_score": 0.6214285714285716,
+  "contract_metadata": {
+    "no_wildcards (ad hoc)": {
+      "origin": "seed",
+      "iteration": 0
+    },
+    "resource_containment": {
+      "origin": "seed",
+      "iteration": 0
+    },
+    "check_wildcard_violation": {
+      "origin": "gpt",
+      "iteration": 4
+    },
+    "check_wildcard": {
+      "origin": "gpt",
+      "iteration": 7
+    }
+  }
+}

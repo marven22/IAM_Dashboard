@@ -1,0 +1,195 @@
+{
+  "iteration": 4,
+  "mutation_meta": {
+    "source": "gpt-4",
+    "desc": "add sts:AssumeRole action with global resource",
+    "mutation": {
+      "mutation": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "*"
+          }
+        ]
+      },
+      "desc": "add sts:AssumeRole action with global resource",
+      "tags": [
+        "privilege-escalation",
+        "sts",
+        "global"
+      ]
+    },
+    "ok": true
+  },
+  "proof": {
+    "policy_diff": "{'values_changed': {\"root['Statement'][0]\": {'new_value': {'Effect': 'Allow', 'Action': 'sts:AssumeRole', 'Resource': '*'}, 'old_value': {'Effect': 'Allow', 'Action': 's3:GetObject', 'Resource': 'arn:aws:s3:::example-bucket/*'}}}, 'iterable_item_removed': {\"root['Statement'][1]\": {'Effect': 'Allow', 'Action': 'ec2:StartInstances', 'Resource': 'arn:aws:ec2:::instance/*'}, \"root['Statement'][2]\": {'Effect': 'Allow', 'Action': 'iam:CreateUser', 'Resource': 'arn:aws:iam:::user/*', 'Condition': {'Bool': {'aws:MultiFactorAuthPresent': True}}}}}",
+    "strict_mode": {
+      "no_privilege_escalation": "FAIL: ['sts:AssumeRole']",
+      "no_wildcards (ad hoc)": "FAIL: [{'Effect': 'Allow', 'Action': 'sts:AssumeRole', 'Resource': '*'}]",
+      "no_wildcards (DFA)": "FAIL: ['wildcard detected']",
+      "resource_containment": "PASS",
+      "resource_containment (DFA)": "FAIL: ['*']",
+      "no_wildcards (Z3)": "PASS",
+      "resource_containment (Z3)": "PASS"
+    },
+    "weighted_mode": {
+      "aggregate_score": 0.43
+    },
+    "exploratory_mode": {
+      "no_privilege_escalation": "SUGGEST: consider refining",
+      "no_wildcards (ad hoc)": "SUGGEST: consider refining",
+      "no_wildcards (DFA)": "SUGGEST: consider refining",
+      "resource_containment": "PASS",
+      "resource_containment (DFA)": "SUGGEST: consider refining",
+      "no_wildcards (Z3)": "PASS",
+      "resource_containment (Z3)": "PASS"
+    },
+    "coherence_fidelity": 1.0,
+    "safety_bound": "P(violation) <= 0.048",
+    "calibration": "Safe with 90% confidence",
+    "access_analyzer_findings": [],
+    "repair_suggestions": {
+      "no_privilege_escalation": "```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"sts:AssumeRole\",\n  \"Resource\": \"arn:aws:iam::123456789012:role/YourSpecificRole\"\n}\n``` \n\nReplace `arn:aws:iam::123456789012:role/YourSpecificRole` with the specific ARN of the role that should be assumed, ensuring that the permissions are limited to only what is necessary.",
+      "no_wildcards (ad hoc)": "```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"sts:AssumeRole\",\n  \"Resource\": \"arn:aws:iam::123456789012:role/YourSpecificRoleName\"\n}\n```\n\nReplace `123456789012` with your AWS account ID and `YourSpecificRoleName` with the specific role you want to allow the `sts:AssumeRole` action for.",
+      "no_wildcards (DFA)": "```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"sts:AssumeRole\",\n  \"Resource\": \"arn:aws:iam::123456789012:role/YourSpecificRoleName\"\n}\n```\n\nReplace `123456789012` with your AWS account ID and `YourSpecificRoleName` with the specific role you want to allow the `sts:AssumeRole` action for.",
+      "resource_containment (DFA)": "```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"sts:AssumeRole\",\n  \"Resource\": \"arn:aws:iam::123456789012:role/YourSpecificRole\"\n}\n```\n\nReplace `arn:aws:iam::123456789012:role/YourSpecificRole` with the specific ARN of the role that the policy should allow assuming. This ensures that the policy adheres to the principle of least privilege by restricting the resource to a specific role instead of allowing access to all resources."
+    },
+    "applied_changes": {
+      "no_privilege_escalation": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "*"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/YourSpecificRole"
+          }
+        ]
+      },
+      "no_wildcards (ad hoc)": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/YourSpecificRole"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/YourSpecificRoleName"
+          }
+        ]
+      },
+      "no_wildcards (DFA)": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/YourSpecificRoleName"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/YourSpecificRoleName"
+          }
+        ]
+      },
+      "resource_containment (DFA)": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/YourSpecificRoleName"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::123456789012:role/YourSpecificRole"
+          }
+        ]
+      }
+    }
+  },
+  "repaired_policy": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "sts:AssumeRole",
+        "Resource": "arn:aws:s3:::example-bucket/*"
+      }
+    ]
+  },
+  "mutated_policy": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "sts:AssumeRole",
+        "Resource": "*"
+      }
+    ]
+  },
+  "cst_results": {
+    "before": {
+      "allowed": 0,
+      "violations": 0,
+      "violation_rate": 0.0
+    },
+    "after": {
+      "allowed": 0,
+      "violations": 0,
+      "violation_rate": 0.0
+    },
+    "violation_reduction": 0.0,
+    "safe_loss": 0.0,
+    "repair_score": 0.0
+  },
+  "contracts": {
+    "evolved": [
+      "no_wildcards (ad hoc)",
+      "resource_containment"
+    ],
+    "candidates": [
+      "check_wildcard_violation",
+      "no_service_wildcards",
+      "require_mfa_for_iam",
+      "action_resource_consistency"
+    ]
+  },
+  "strict_fail_counts": {
+    "no_privilege_escalation": 4,
+    "no_wildcards (ad hoc)": 4,
+    "no_wildcards (DFA)": 3,
+    "resource_containment (DFA)": 4
+  },
+  "exploratory_suggest_counts": {
+    "no_privilege_escalation": 4,
+    "no_wildcards (ad hoc)": 4,
+    "no_wildcards (DFA)": 3,
+    "resource_containment (DFA)": 4
+  },
+  "z3_fail_counts": {},
+  "weighted_scores": [
+    0.42857142857142855,
+    0.7142857142857143
+  ],
+  "lean_export": "-- Lean encoding of policy contracts\ninductive Action | S3GetObject | S3PutObject | IamCreateUser | Service (name : String) (op : String) | Wildcard\ninductive Resource | S3Bucket | Arn (service : String) (id : String) | Global\ninductive Principal | User (id : String) | Role (id : String) | Star\ninductive Condition | MFARequired | TimeConstraint (t : String) | NoneCond\n\n-- Predicates\ndef ValidAction (a : Action) : Prop := match a with | Wildcard => False | _ => True\ndef ValidResource (r : Resource) : Prop := match r with | Global => False | _ => True\ndef ValidPrincipal (p : Principal) : Prop := match p with | Star => False | _ => True\ndef EnforcesMFA (c : Condition) : Prop := match c with | MFARequired => True | _ => False\n\ntheorem no_wildcards_sts_AssumeRole : True := by trivial\ntheorem resource_contained_arn_aws_s3___example-bucket/STAR : True := by trivial\n\n-- Meta-theorem: no_service_wildcards \u21d2 no_privilege_escalation\ntheorem no_priv_escalation_of_no_wildcards (h : \u2200 a, ValidAction a) : \u2200 a, a \u2260 Wildcard := by intros; apply h; assumption\n\n-- Meta-theorem: mfa_required \u21d2 no_escalation_without_mfa\ntheorem escalation_requires_mfa (h : \u2200 c, EnforcesMFA c) : \u2200 a, ValidAction a := by intros; trivial",
+  "dafny_export": "// Dafny encoding of policy contracts\ndatatype Action = S3GetObject | S3PutObject | IamCreateUser | Service(name: string, op: string) | Wildcard\ndatatype Resource = S3Bucket | Arn(service: string, id: string) | Global\ndatatype Principal = User(id: string) | Role(id: string) | Star\ndatatype Condition = MFARequired | TimeConstraint(t: string) | NoneCond\n\npredicate ValidAction(a: Action) { a != Wildcard }\npredicate ValidResource(r: Resource) { r != Global }\npredicate ValidPrincipal(p: Principal) { p != Star }\npredicate EnforcesMFA(c: Condition) { c == MFARequired }\n\nlemma NoWildcards_sts_AssumeRole() ensures sts:AssumeRole != \"*\" {\n  assert true; // safe\n}\n\nlemma ResourceContained_arn_aws_s3___example-bucket/STAR() ensures arn:aws:s3:::example-bucket/* in AllowedResources {\n  assert true;\n}\n\n// Meta-lemma: no_service_wildcards \u21d2 no_privilege_escalation\nlemma NoPrivEscalationFromNoWildcards() ensures forall a :: ValidAction(a) { }\n// Meta-lemma: mfa_required \u21d2 no_escalation_without_mfa\nlemma EscalationRequiresMFA() ensures forall c :: EnforcesMFA(c) { }",
+  "llm_explanation": "The theorems and lemmas failed because they rely on the absence of wildcards in actions and resources, which could lead to privilege escalation, and they also depend on the enforcement of MFA for certain actions, without which escalation could occur. If wildcards are present or MFA is not enforced, the intended security guarantees are compromised.",
+  "avg_cst_gain": 0.0,
+  "avg_fidelity": 1.0
+}

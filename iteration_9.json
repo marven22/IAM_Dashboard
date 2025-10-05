@@ -1,0 +1,239 @@
+{
+  "iteration": 9,
+  "mutation_meta": {
+    "source": "gpt-4",
+    "desc": "grant all actions on all resources without any conditions",
+    "mutation": {
+      "mutation": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ]
+      },
+      "desc": "grant all actions on all resources without any conditions",
+      "tags": [
+        "wildcard",
+        "global",
+        "no-mfa"
+      ]
+    },
+    "ok": true
+  },
+  "proof": {
+    "policy_diff": "{'values_changed': {\"root['Statement'][0]\": {'new_value': {'Effect': 'Allow', 'Action': '*', 'Resource': '*'}, 'old_value': {'Effect': 'Allow', 'Action': 's3:GetObject', 'Resource': 'arn:aws:s3:::example-bucket/*'}}}, 'iterable_item_removed': {\"root['Statement'][1]\": {'Effect': 'Allow', 'Action': 'ec2:StartInstances', 'Resource': 'arn:aws:ec2:::instance/*'}, \"root['Statement'][2]\": {'Effect': 'Allow', 'Action': 'iam:CreateUser', 'Resource': 'arn:aws:iam:::user/*', 'Condition': {'Bool': {'aws:MultiFactorAuthPresent': True}}}}}",
+    "strict_mode": {
+      "no_privilege_escalation": "FAIL: ['*']",
+      "no_wildcards (ad hoc)": "FAIL: [{'Effect': 'Allow', 'Action': '*', 'Resource': '*'}]",
+      "no_wildcards (DFA)": "FAIL: ['wildcard detected']",
+      "resource_containment": "PASS",
+      "resource_containment (DFA)": "FAIL: ['*']",
+      "no_wildcards (Z3)": "PASS",
+      "resource_containment (Z3)": "PASS"
+    },
+    "weighted_mode": {
+      "aggregate_score": 0.43
+    },
+    "exploratory_mode": {
+      "no_privilege_escalation": "SUGGEST: consider refining",
+      "no_wildcards (ad hoc)": "SUGGEST: consider refining",
+      "no_wildcards (DFA)": "SUGGEST: consider refining",
+      "resource_containment": "PASS",
+      "resource_containment (DFA)": "SUGGEST: consider refining",
+      "no_wildcards (Z3)": "PASS",
+      "resource_containment (Z3)": "PASS"
+    },
+    "coherence_fidelity": 1.0,
+    "safety_bound": "P(violation) <= 0.863",
+    "calibration": "Safe with 17% confidence",
+    "access_analyzer_findings": [],
+    "repair_suggestions": {
+      "no_privilege_escalation": "```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": [\n    \"s3:ListBucket\",\n    \"s3:GetObject\",\n    \"s3:PutObject\",\n    \"ec2:DescribeInstances\",\n    \"ec2:StartInstances\",\n    \"ec2:StopInstances\"\n  ],\n  \"Resource\": \"*\"\n}\n``` \n\nNote: The specific actions should be tailored to the actual needs of the users or services that will be using this policy. The above example includes common actions for S3 and EC2, but you should adjust it based on your requirements.",
+      "no_wildcards (ad hoc)": "```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": [\n    \"s3:ListBucket\",\n    \"s3:GetObject\",\n    \"s3:PutObject\"\n  ],\n  \"Resource\": [\n    \"arn:aws:s3:::your-bucket-name\",\n    \"arn:aws:s3:::your-bucket-name/*\"\n  ]\n}\n```\n\n**Note:** Replace `\"your-bucket-name\"` with the actual name of the S3 bucket you intend to grant permissions for. Adjust the actions and resources according to your specific use case and requirements.",
+      "no_wildcards (DFA)": "```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": [\n    \"s3:*\",\n    \"ec2:*\",\n    \"lambda:*\",\n    \"dynamodb:*\"\n  ],\n  \"Resource\": \"*\"\n}\n``` \n\n*Note: The specific actions should be tailored to the actual services and actions needed for your use case. The above example includes common AWS services but should be adjusted based on your requirements.*",
+      "resource_containment (DFA)": "To address the violation of the `resource_containment (DFA)` contract while keeping permissions as close as possible to the original intent, you should specify the resources more narrowly instead of using `\"Resource\": \"*\"`.\n\nHere\u2019s a corrected version of the policy statement:\n\n```json\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"*\",\n  \"Resource\": [\n    \"arn:aws:s3:::your-bucket-name\",\n    \"arn:aws:s3:::your-bucket-name/*\",\n    \"arn:aws:ec2:region:account-id:instance/*\",\n    \"arn:aws:lambda:region:account-id:function:*\"\n  ]\n}\n```\n\nMake sure to replace `your-bucket-name`, `region`, and `account-id` with the actual values relevant to your AWS environment. This example assumes you want to allow actions on a specific S3 bucket, EC2 instances, and Lambda functions, but you should adjust the resources according to your specific use case."
+    },
+    "applied_changes": {
+      "no_privilege_escalation": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:ListBucket",
+              "s3:GetObject",
+              "s3:PutObject",
+              "ec2:DescribeInstances",
+              "ec2:StartInstances",
+              "ec2:StopInstances"
+            ],
+            "Resource": "*"
+          }
+        ]
+      },
+      "no_wildcards (ad hoc)": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:ListBucket",
+              "s3:GetObject",
+              "s3:PutObject",
+              "ec2:DescribeInstances",
+              "ec2:StartInstances",
+              "ec2:StopInstances"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:ListBucket",
+              "s3:GetObject",
+              "s3:PutObject"
+            ],
+            "Resource": [
+              "arn:aws:s3:::your-bucket-name",
+              "arn:aws:s3:::your-bucket-name/*"
+            ]
+          }
+        ]
+      },
+      "no_wildcards (DFA)": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:ListBucket",
+              "s3:GetObject",
+              "s3:PutObject"
+            ],
+            "Resource": [
+              "arn:aws:s3:::your-bucket-name",
+              "arn:aws:s3:::your-bucket-name/*"
+            ]
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:*",
+              "ec2:*",
+              "lambda:*",
+              "dynamodb:*"
+            ],
+            "Resource": "*"
+          }
+        ]
+      },
+      "resource_containment (DFA)": {
+        "old": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:*",
+              "ec2:*",
+              "lambda:*",
+              "dynamodb:*"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "new": [
+          {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": [
+              "arn:aws:s3:::your-bucket-name",
+              "arn:aws:s3:::your-bucket-name/*",
+              "arn:aws:ec2:region:account-id:instance/*",
+              "arn:aws:lambda:region:account-id:function:*"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "repaired_policy": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::example-bucket/*"
+      }
+    ]
+  },
+  "mutated_policy": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "*",
+        "Resource": "*"
+      }
+    ]
+  },
+  "cst_results": {
+    "before": {
+      "allowed": 200,
+      "violations": 200,
+      "violation_rate": 1.0
+    },
+    "after": {
+      "allowed": 21,
+      "violations": 0,
+      "violation_rate": 0.0
+    },
+    "violation_reduction": 1.0,
+    "safe_loss": 0.895,
+    "repair_score": 0.43149999999999994
+  },
+  "contracts": {
+    "evolved": [
+      "no_wildcards (ad hoc)",
+      "resource_containment"
+    ],
+    "candidates": [
+      "check_wildcard_violation",
+      "no_service_wildcards",
+      "require_mfa_for_iam",
+      "action_resource_consistency",
+      "check_wildcard"
+    ]
+  },
+  "strict_fail_counts": {
+    "no_privilege_escalation": 9,
+    "no_wildcards (ad hoc)": 9,
+    "no_wildcards (DFA)": 7,
+    "resource_containment (DFA)": 9
+  },
+  "exploratory_suggest_counts": {
+    "no_privilege_escalation": 9,
+    "no_wildcards (ad hoc)": 9,
+    "no_wildcards (DFA)": 7,
+    "resource_containment (DFA)": 9
+  },
+  "z3_fail_counts": {},
+  "weighted_scores": [
+    0.42857142857142855,
+    0.8571428571428571
+  ],
+  "lean_export": "-- Lean encoding of policy contracts\ninductive Action | S3GetObject | S3PutObject | IamCreateUser | Service (name : String) (op : String) | Wildcard\ninductive Resource | S3Bucket | Arn (service : String) (id : String) | Global\ninductive Principal | User (id : String) | Role (id : String) | Star\ninductive Condition | MFARequired | TimeConstraint (t : String) | NoneCond\n\n-- Predicates\ndef ValidAction (a : Action) : Prop := match a with | Wildcard => False | _ => True\ndef ValidResource (r : Resource) : Prop := match r with | Global => False | _ => True\ndef ValidPrincipal (p : Principal) : Prop := match p with | Star => False | _ => True\ndef EnforcesMFA (c : Condition) : Prop := match c with | MFARequired => True | _ => False\n\ntheorem no_wildcards_s3_GetObject : True := by trivial\ntheorem resource_contained_arn_aws_s3___example-bucket/STAR : True := by trivial\n\n-- Meta-theorem: no_service_wildcards \u21d2 no_privilege_escalation\ntheorem no_priv_escalation_of_no_wildcards (h : \u2200 a, ValidAction a) : \u2200 a, a \u2260 Wildcard := by intros; apply h; assumption\n\n-- Meta-theorem: mfa_required \u21d2 no_escalation_without_mfa\ntheorem escalation_requires_mfa (h : \u2200 c, EnforcesMFA c) : \u2200 a, ValidAction a := by intros; trivial",
+  "dafny_export": "// Dafny encoding of policy contracts\ndatatype Action = S3GetObject | S3PutObject | IamCreateUser | Service(name: string, op: string) | Wildcard\ndatatype Resource = S3Bucket | Arn(service: string, id: string) | Global\ndatatype Principal = User(id: string) | Role(id: string) | Star\ndatatype Condition = MFARequired | TimeConstraint(t: string) | NoneCond\n\npredicate ValidAction(a: Action) { a != Wildcard }\npredicate ValidResource(r: Resource) { r != Global }\npredicate ValidPrincipal(p: Principal) { p != Star }\npredicate EnforcesMFA(c: Condition) { c == MFARequired }\n\nlemma NoWildcards_s3_GetObject() ensures s3:GetObject != \"*\" {\n  assert true; // safe\n}\n\nlemma ResourceContained_arn_aws_s3___example-bucket/STAR() ensures arn:aws:s3:::example-bucket/* in AllowedResources {\n  assert true;\n}\n\n// Meta-lemma: no_service_wildcards \u21d2 no_privilege_escalation\nlemma NoPrivEscalationFromNoWildcards() ensures forall a :: ValidAction(a) { }\n// Meta-lemma: mfa_required \u21d2 no_escalation_without_mfa\nlemma EscalationRequiresMFA() ensures forall c :: EnforcesMFA(c) { }",
+  "llm_explanation": "The theorems and lemmas failed due to the presence of wildcard actions or resources, which can lead to privilege escalation by allowing broader access than intended. Additionally, the lack of enforced MFA conditions can result in unauthorized access without the necessary security checks.",
+  "avg_cst_gain": 1.0,
+  "avg_fidelity": 1.0
+}

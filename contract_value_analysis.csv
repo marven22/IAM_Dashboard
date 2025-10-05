@@ -1,0 +1,5 @@
+Contract,Origin,FirstSeenIter,TotalFails,AvgCSTGain,AvgFidelityGain
+no_wildcards (ad hoc),seed,0,10,0.485,1.0
+resource_containment,seed,0,0,0.0,0.0
+check_wildcard_violation,gpt,4,0,0.0,0.0
+check_wildcard,gpt,7,0,0.0,0.0
