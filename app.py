@@ -33,7 +33,7 @@ final_dashboard = load_final_dashboard()
 # Streamlit UI
 # =============================
 st.set_page_config(page_title="IAM Policy POC", layout="wide")
-st.title("🔒 Self-Verifying Intelligence: IAM Policy POC")
+st.title("🔒 Proof-Carrying Reasoning: IAM Policy POC")
 st.markdown("This demo showcases how **LLM-guided automated reasoning** evolves contracts, repairs IAM policies, and produces proof-carrying artifacts.")
 
 # Sidebar navigation
